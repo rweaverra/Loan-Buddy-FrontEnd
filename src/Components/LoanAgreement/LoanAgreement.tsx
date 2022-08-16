@@ -1,8 +1,22 @@
-import React from 'react';
+import React, {useState} from 'react';
 import { Link, useParams } from 'react-router-dom';
 import Table from 'react-bootstrap/Table';
+import MakePaymentModal from '../MakePaymentModal/MakePaymentModal';
+import {ILoanAgreement} from '../../Utils/Utils';
+
+
 
 function LoanAgreement() {
+
+
+  //***need to make a call to get all transactions, loan Agreement names,  based off loan agreement. 
+  // create transactions in backend
+  //backend- decide the types of ids, dates, etc. Will need to do some research on this
+  // 
+
+  const [showModal, setShowModal] = useState(false);
+  const handleShow = () => setShowModal(true);
+  const handleClose = () => setShowModal(false);
 
   let params = useParams();
 
@@ -11,12 +25,14 @@ function LoanAgreement() {
       <h1>Loan Agreement</h1>
       <h2>{params.loanId}</h2>
       <Link to="/">Home</Link>
+      <button onClick={handleShow}>Make Payment</button>
+      <MakePaymentModal showModal={showModal} handleClose={handleClose}/>
       <ul>
-        <li>Lender: Bill</li>
-        <li>Borrower: Tim</li>
-        <li>Date:</li>
-        <li>Initial Amount:</li>
-        <li>Remaining Amount:</li>
+        {/* <li>{loanAgreement.lenderId}</li>
+        <li>Borrower: Tim NEED TO GET THIS INFO</li>
+        <li>Date: {loanAgreement.dateCreated}</li>
+        <li>Initial Amount: {loanAgreement.originalAmount}</li>
+        <li>Remaining Amount: {loanAgreement.remainingTotal}</li> */}
         <li>Percentage Rate:</li>
         <li>Current Payoff Date:</li>
       </ul>

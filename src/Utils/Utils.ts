@@ -8,6 +8,18 @@ export interface ILoanAgreement  {
     "remainingTotal": number 
   }
 
+  export interface ITransaction {
+    'transactionId': number,
+    "loanAgreementId": number,
+    "amount": number,
+    "transactionType": string,  //change this to another interface
+    "date": Date,
+    "remainingTotal": number,
+    "proofOfPayment": boolean
+  }
+      
+
+
   // export async function getLoanAgreementData(any: loanId) {
   //   try {
   //     const response = await fetch("https://localhost:7055/api/Values/GetLoanAgreements", {

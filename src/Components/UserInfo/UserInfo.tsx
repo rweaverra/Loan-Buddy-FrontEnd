@@ -7,14 +7,16 @@ function UserInfo() {
   const [userData, setUserData] = useState({});
   const [loanAgreements, setLoanAgreements] = useState<ILoanAgreement[]>([]);
 
+ 
+  const userId = 1; //will change after login page created
 
-  
+
 //should grab the user info(name, email, etc)
 //should grab the initial loan agreement info(name, amount, etc.)
 //so then should I have one function that grabs all of this??
   async function getdata() {
     try {
-      const response = await fetch("https://localhost:7055/api/Values/GetLoanAgreements", {
+      const response = await fetch(`https://localhost:7055/LoanAgreement?userId=${userId}`, {
         method: 'GET',
         headers: {
           accept: 'application/json',
@@ -27,7 +29,7 @@ function UserInfo() {
   
       const result = await response.json();
       console.log("fetching result: ", result);
-      setLoanAgreements(result);
+      setLoanAgreements(result.borrowingAgreements);
     } catch (err) {
       console.log(err);
     }
