@@ -16,7 +16,7 @@ function UserInfo() {
 //so then should I have one function that grabs all of this??
   async function getdata() {
     try {
-      const response = await fetch(`https://localhost:7055/LoanAgreement?userId=${userId}`, {
+      const response = await fetch(`https://localhost:7055/LoanAgreement/${userId}`, {
         method: 'GET',
         headers: {
           accept: 'application/json',
@@ -29,7 +29,7 @@ function UserInfo() {
   
       const result = await response.json();
       console.log("fetching result: ", result);
-      setLoanAgreements(result.borrowingAgreements);
+      setLoanAgreements(result);
     } catch (err) {
       console.log(err);
     }
