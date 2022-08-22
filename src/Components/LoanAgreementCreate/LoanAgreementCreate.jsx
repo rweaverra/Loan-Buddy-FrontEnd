@@ -6,6 +6,8 @@ import { IUserInfo} from '../../Utils/Utils';
 import './LoanAgreementCreate.css';
 import jsPDF from "jspdf";
 import SignaturePad from 'signature_pad';
+import { degrees, PDFDocument, rgb, StandardFonts } from 'pdf-lib';
+
 
 function LoanAgreementCreate() {
   const [userInfo, setUserInfo] = useState({});
@@ -13,7 +15,7 @@ function LoanAgreementCreate() {
   const [loanDetails, setLoanDetails] = useState({});
   const [pdfUrl, setPdfUrl] = useState("");
   const [showSignPad, setShowSignPad] = useState(false);
-   const myRef = useRef(null);
+  const myRef = useRef(null);
 
   const params = useParams();
   const userId = params.userId;  //as string
@@ -79,13 +81,91 @@ function LoanAgreementCreate() {
 
 
       ///SIGNATURE PAD EX
+      var sig = {};
+      var signatureUrl = '';
       if(myRef.current){
         console.log("myRef: ", myRef);
         //my ref is basically document.getElementById, but has to be done after element is rendered.
-        const signaturePad = new SignaturePad(myRef.current);
-    }
+       sig = new SignaturePad(myRef.current);
+       sig.clear();
+        // setSignaturePad(new SignaturePad(myRef.current))
+
+       }
+
+       function clearSignature() {
+        sig.clear();
+       }
+       function submitSignature() {
+        // const data = sig.toDataURL("image/jpeg");
+        signatureUrl = sig.toDataURL();
+        sig.clear();
+        console.log("sig data: ", signatureUrl);
+        modifyPdf();
+
+         //add the dependencies
+        //get the pdf URL
+        //get the signature PNG file
+        //add the signature to the pdf
+        //save/show the pdf again.
+       }
     
-      //END SIGNATURE PAD
+      //END SIGNATURE PADS
+
+      async function modifyPdf() {
+ 
+        // Fetch an existing PDF document
+        const url = pdfUrl;
+        const existingPdfBytes = await fetch(url).then(res => res.arrayBuffer());
+      
+        // Load a PDFDocument from the existing PDF bytes
+        const pdfDoc = await PDFDocument.load(existingPdfBytes);
+      
+      
+        // Get the first page of the document
+        const pages = pdfDoc.getPages();
+        const firstPage = pages[0];
+        
+        // Fetch JPEG image
+        const jpgUrl = signatureUrl;
+        const jpgImageBytes = await fetch(jpgUrl).then((res) => res.arrayBuffer());
+          
+        const jpgImage = await pdfDoc.embedPng(jpgImageBytes);
+        const jpgDims = jpgImage.scale(0.25);
+        
+      
+        // Get the width and height of the first page
+        const { width, height } = firstPage.getSize();
+          firstPage.drawText('This text was added with JavaScript!', {
+             x: 5,
+             y: height / 2 + 300,
+             size: 50,
+             color: rgb(0.95, 0.1, 0.1),
+             rotate: degrees(-45),
+           });
+      
+        
+              // Add a blank page to the document
+      
+      
+       firstPage.drawImage(jpgImage, {
+          x: firstPage.getWidth() / 2 - jpgDims.width / 2,
+          y: firstPage.getHeight() / 2 - jpgDims.height / 2,
+          width: jpgDims.width,
+          height: jpgDims.height,
+        });
+        
+        
+        // Serialize the PDFDocument to bytes (a Uint8Array)
+        const pdfBytes = await pdfDoc.save();
+        console.log("PDFBYTES SAVED: ", pdfBytes);
+        const pdfDataUri = await pdfDoc.saveAsBase64({ dataUri: true });
+    //   document.getElementById('pdf').src = pdfDataUri;
+      setPdfUrl(pdfDataUri);
+              // Trigger the browser to download the PDF document
+        // download(pdfBytes, "pdf-lib_modification_example.pdf", "application/pdf");
+
+      
+      }
 
     if(!userInfo) return <div>loading...</div>
 
@@ -96,7 +176,11 @@ function LoanAgreementCreate() {
                 <iframe src={pdfUrl} />
                 <button className="btn btn-primary" onClick={signAgreement}>Sign Agreement</button>
                 </div>}
+            <div style={{ display: showSignPad ? "block" : "none" }}>
                <canvas ref={myRef} style={{ display: showSignPad ? "block" : "none" }} width="400" height="200"></canvas>
+               <button onClick={() => clearSignature()}>clear signature</button>
+               <button onClick={()=> submitSignature()}>submit signature</button>
+            </div>
             <h4>Create Loan Agreement</h4>
             <div>{userInfo.name}</div>
             <br></br>
