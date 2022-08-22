@@ -2,7 +2,8 @@ import React from 'react';
 import UserInfo from './Components/UserInfo/UserInfo';
 import './App.css';
 import LoanAgreement from './Components/LoanAgreement/LoanAgreement';
-import Login from './Components/Login/Login.jsx';
+import LoanAgreementCreate from './Components/LoanAgreementCreate/LoanAgreementCreate.jsx';
+import Login from './Components/Login/Login';
 import { Routes, Route } from "react-router-dom";
 
 
@@ -13,6 +14,7 @@ function App() {
         <Route path="/" element={<Login />} />
         <Route path="user-info/:userId" element={<UserInfo />} />
         <Route path="loan-agreement/:loanId" element={<LoanAgreement />} />
+        <Route path="loan-agreement-create/:userId" element={<LoanAgreementCreate />} />
       </Routes>
     </div>
 

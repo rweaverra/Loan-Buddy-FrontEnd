@@ -16,17 +16,16 @@ function LoanAgreement() {
   const [userData, setUserData] = useState({});
   const [loanAgreements, setLoanAgreements] = useState<ILoanAgreement>();
   const [transactions, setTransactions] = useState<ITransaction[]>([]);
-  const [showModal, setShowModal] = useState(false);
+  const [showModal, setShowModal] = useState<boolean>(false);
   const handleShow = () => setShowModal(true);
   const handleClose = () => setShowModal(false);
   let params = useParams();
-  let userId = 1; //**need to pass this through props */
+  console.log("params in loan agreement", params);
+  let userId = params.loanId; //**need to pass this through props */
 
   async function getdata() {
     try {
-      //getAllLoanInfo/{loanId}/{userId}
-      //https://localhost:7055/LoanAgreement/getAllLoanInfo/${params.loanId}/${userId}
-      const response = await fetch(`https://localhost:7055/LoanAgreement/getAllLoanInfo/${params.loanId}/${userId}`, {
+      const response = await fetch(`https://localhost:7055/LoanAgreement/getAllLoanInfo/${params.loanId}`, {
         method: 'GET',
         headers: {
           accept: 'application/json',

@@ -17,6 +17,13 @@ export interface ILoanAgreement  {
     "remainingTotal": number,
     "proofOfPayment": boolean
   }
+
+  export interface IUserInfo {
+    "userId": number,
+    "name": string,
+    "email": string,
+    "password": string
+  }
       
 
 

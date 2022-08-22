@@ -3,31 +3,30 @@ import Button from 'react-bootstrap/Button';
 import Modal from 'react-bootstrap/Modal';
 import Form from 'react-bootstrap/Form';
 
+interface User {
+  login: string;
+  password: string;
+};
 
-const Login = () => {
-    const [showModal, setShowModal] = useState(true);
-    const [inputs, setInputs] = useState({
+function Login() {
+    const [showModal, setShowModal] = useState<boolean>(true);
+    const [inputs, setInputs] = useState<User>({
       login: "",
       password: ""
     });
 
-
   const handleClose = () => setShowModal(false);
-
-    
-  const handleChange = (e) => {
+  const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
       setInputs({
         ...inputs,
         [e.target.name]: e.target.value
       })
-      }
+  }
 
-  async function fetchUserId(e) {
+  async function fetchUserId() {
         try {
           //create dev and production ENV variables for fetches
           //will probably need a local and dev key
-
-          e.preventDefault();
           const response = await fetch(`https://localhost:7055/Auth?username=${inputs.login}&password=${inputs.password}`, {
             method: 'GET',
             headers: {
@@ -44,7 +43,7 @@ const Login = () => {
 
           //if result is valid, ill have to fix this eventually.
           let url = window.location.href;
-          window.location = `${url}user-info/${result}`
+          window.location.href = `${url}user-info/${result}`
           
           //redirect to UserInfo Page.
 

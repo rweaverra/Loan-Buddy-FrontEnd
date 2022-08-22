@@ -1,42 +1,26 @@
 import React, {useState, useEffect} from 'react';
-import internal from 'stream';
+import { Link, useParams } from 'react-router-dom';
 import LoanAgreementOutline from '../LoanAgreementOutline/LoanAgreementOutline';
-import {ILoanAgreement} from '../../Utils/Utils';
+import {ILoanAgreement, IUserInfo} from '../../Utils/Utils';
+import getAllUserData from '../../Utils/AjaxRequests';
 
 function UserInfo() {
-  const [userData, setUserData] = useState({});
+  const [userData, setUserData] = useState<IUserInfo>();
   const [loanAgreements, setLoanAgreements] = useState<ILoanAgreement[]>([]);
 
- 
-  const userId = 1; //will change after login page created
 
+   const params = useParams();
+  const userId = params.userId as string;
 
-//should grab the user info(name, email, etc)
-//should grab the initial loan agreement info(name, amount, etc.)
-//so then should I have one function that grabs all of this??
   async function getdata() {
-    try {
-      const response = await fetch(`https://localhost:7055/LoanAgreement/${userId}`, {
-        method: 'GET',
-        headers: {
-          accept: 'application/json',
-        },
-      });
-  
-      if (!response.ok) {
-        throw new Error(`Error! status: ${response.status}`);
-      }
-  
-      const result = await response.json();
-      console.log("fetching result: ", result);
-      setLoanAgreements(result);
-    } catch (err) {
-      console.log(err);
-    }
+    //could make get AllUserData a request OBject so We Know what it is doing.
+    var results = await getAllUserData(userId);
+
+    setUserData(results.userInfo);
+    setLoanAgreements(results.loanAgreements);
   }
 
-      
-
+  
   useEffect(() => {
       getdata();      
   }, []); 
@@ -60,7 +44,8 @@ function UserInfo() {
         {/* <LoanAgreementOutline loanAgreements={loanAgreements}></LoanAgreementOutline> */}
         <br></br>
         <br></br>
-        <button>New Loan</button>
+        <button><Link to={`/loan-agreement-create/${userId}`} >Create new Loan Agreement</Link> </button>
+
       </div>
     );
   }

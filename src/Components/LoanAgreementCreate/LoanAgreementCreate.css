@@ -1,0 +1,21 @@
+.container {
+    padding: 20px;
+}
+
+.row {
+    margin: 5px;
+}
+
+.form-group {
+    margin: 10px;
+}
+
+.sigBox {
+    border: 5px solid red;
+    height: 150px;
+    width: 200px;
+}
+
+/* canvas {
+    background-color: black;
+}    */
