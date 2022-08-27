@@ -1,5 +1,5 @@
 
-export default  async function getAllUserData(userId : string) {
+export default  async function getAllUserData(userId : string | undefined) {
     try {
       const response = await fetch(`https://localhost:7055/LoanAgreementsGet/${userId}`, {
         method: 'GET',

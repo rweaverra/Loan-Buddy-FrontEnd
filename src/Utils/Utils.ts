@@ -1,28 +1,38 @@
+declare global {
+  interface Window {
+      jsPDF:any;
+  }
+}
+
+
 export interface ILoanAgreement  {
-    "loanAgreementId": number,    
-    "lenderId": number,
-    "borrowerId": number,
-    "originalAmount": number,
-    "dateCreated": string,
-    "monthlyPaymentAmount": number, 
-    "remainingTotal": number 
+    loanAgreementId?: number ,    
+    lenderId?: number,
+    borrowerId?: number,
+    originalAmount?: number,
+    dateCreated?: string,
+    monthlyPaymentAmount?: number, 
+    remainingTotal?: number,
+    requiresSignatures?: boolean,
+    interestPercentage? : number,
+    paybackDate?: string
   }
 
   export interface ITransaction {
-    'transactionId': number,
-    "loanAgreementId": number,
-    "amount": number,
-    "transactionType": string,  //change this to another interface
-    "date": Date,
-    "remainingTotal": number,
-    "proofOfPayment": boolean
+    transactionId?: number,
+    loanAgreementId?: number,
+    amount?: number,
+    transactionType?: string,  //change this to another interface
+    date?: Date,
+    remainingTotal?: number,
+    proofOfPayment?: boolean
   }
 
   export interface IUserInfo {
-    "userId": number,
-    "name": string,
-    "email": string,
-    "password": string
+    userId?: number,
+    name?: string,
+    email?: string,
+    password?: string
   }
       
 

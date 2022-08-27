@@ -2,7 +2,7 @@ import React from 'react';
 import UserInfo from './Components/UserInfo/UserInfo';
 import './App.css';
 import LoanAgreement from './Components/LoanAgreement/LoanAgreement';
-import LoanAgreementCreate from './Components/LoanAgreementCreate/LoanAgreementCreate.jsx';
+import LoanAgreementCreate from './Components/LoanAgreementCreate/LoanAgreementCreate';
 import Login from './Components/Login/Login';
 import { Routes, Route } from "react-router-dom";
 
