@@ -1,10 +1,12 @@
+
+
 import React, {useState, useEffect, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import getAllUserData from '../../Utils/AjaxRequests';
 import { IUserInfo, ILoanAgreement} from '../../Utils/Utils';
 import './LoanAgreementCreate.css';
 import SignaturePad from 'signature_pad';
-import PDFDocument from 'pdf-lib';
+import { degrees, PDFDocument, rgb, StandardFonts } from 'pdf-lib';
 
  type TypeOfLoan = "borrow" | "lend" | "";
 
@@ -16,7 +18,12 @@ function LoanAgreementCreate() {
   const [pdfUrl, setPdfUrl] = useState<string>("");
   const [showSignPad, setShowSignPad] = useState<boolean>(false);
   const [showSaveAndEmailButton, setShowSaveAndEmailButton] = useState<boolean>(false);
-  const myRef = useRef(null);
+  const [borrowBtnClicked, setBorrowBtnClicked] = useState<boolean>(false);
+  const [lendBtnClicked, setLendBtnClicked] = useState<boolean>(false);
+  const [showSignAgreementBtn, setShowSignAgreementBtn] = useState<boolean>(true);
+
+
+  const canvasRef = useRef<any>(null);
 
   const params = useParams();
   const userId = params.userId || "";  //as string
@@ -62,12 +69,12 @@ function LoanAgreementCreate() {
   }
 
   function signAgreement() {
-    setShowSignPad(true);
+      setShowSignPad(true);
+     
   }
   
   useEffect(() => {
     getdata(); 
-    
     }, []); 
 
   async function submitFinishedLoanAgreement() {   
@@ -95,15 +102,40 @@ function LoanAgreementCreate() {
     console.log("SubmitNewLoanAgreementResult: ", result);
   }
 
-
-    ///SIGNATURE PAD
-    var sig : any = {};
-    var signatureUrl = '';
-    if(myRef.current){
+   var sig : any = {};
+  var signatureUrl = '';
+       ///SIGNATURE PAD
+    if(canvasRef.current){
         //my ref is basically document.getElementById, but has to be done after element is rendered.
-        sig = new SignaturePad(myRef.current);
+         sig = new SignaturePad(canvasRef.current);   
+        canvasRef.current.width = 500;
+        canvasRef.current.height = 200;
+
         sig.clear();
+
+        console.log("canvasRef: ", canvasRef);
+        console.log("sigPad: ", sig);
     }
+    
+   
+
+
+    // function resizeCanvas() {
+    //     if(canvasRef.current) {
+    //         const ratio =  Math.max(window.devicePixelRatio || 1, 1);
+    //         canvasRef.current.width = canvasRef.current.offsetWidth * ratio;
+    //         canvasRef.current.height = canvasRef.current.offsetHeight * ratio;
+    //         canvasRef.current.getContext("2d").scale(ratio, ratio);
+
+    //     // if(sig && sig.clear) sig.clear();
+    //         //sig.clear(); // otherwise isEmpty() might return incorrect value
+    //     }
+    // }
+    
+    // window.addEventListener("resize", resizeCanvas);
+    // resizeCanvas();
+
+    
 
     function clearSignature() {
         sig.clear();
@@ -113,6 +145,7 @@ function LoanAgreementCreate() {
         signatureUrl = sig.toDataURL();
         sig.clear();
         addSignatureToPdf();
+        setShowSignAgreementBtn(false);
     }
 
     async function addSignatureToPdf() {
@@ -157,6 +190,20 @@ function LoanAgreementCreate() {
         })
   }
 
+  function loanTypeSelected(loanType : string){
+    //set loan type
+    if (loanType == "borrow"){
+        setLoanType("borrow");
+        setBorrowBtnClicked(true);
+        setLendBtnClicked(false);
+      
+    } else if (loanType == "lend") {
+        setLoanType("lend");
+        setLendBtnClicked(true);
+        setBorrowBtnClicked(false);
+    }
+  }
+
     function saveAndEmailAgreement() {
         submitFinishedLoanAgreement();               
     }
@@ -164,23 +211,35 @@ function LoanAgreementCreate() {
     if(!userInfo) return <div>loading...</div>
 
     return (
-        <div className="container">
-            {pdfUrl && <div>
-                <iframe src={pdfUrl} />
-                    <button className="btn btn-primary" onClick={signAgreement}>Sign Agreement</button>
-                 { showSaveAndEmailButton &&<button className="btn btn-primary" onClick={saveAndEmailAgreement}>Save and Email agreement to other party</button>}
-                </div>}
-            <div style={{ display: showSignPad ? "block" : "none" }}>
-               <canvas ref={myRef} style={{ display: showSignPad ? "block" : "none" }} width="400" height="200"></canvas>
-               <button onClick={() => clearSignature()}>clear signature</button>
-               <button onClick={()=> submitSignature()}>add signature</button>
-            </div>
+        <div className="container mainBody">
+            {pdfUrl && <div className='container'>
+                 <iframe src={pdfUrl} />
+                 <div className='row justify-content-center'>
+                   <button className="btn btn-primary" 
+                    style={{width: "45%", display: showSignAgreementBtn ? "inline-block" : "none"}} 
+                   onClick={signAgreement}>Sign Agreement</button>
+                 </div>
+
+                 
+                 { showSaveAndEmailButton &&<button className="btn btn-success" onClick={saveAndEmailAgreement}>Save and Email agreement to other party</button>}
+            </div>}
+            {showSignPad && <div className="signature-pad">
+                <div className="signature-pad-body row justify-content-center">
+                  <canvas ref={canvasRef}></canvas>
+                </div>
+                <div className="signature-pad-footer">
+                    <div>sign Above</div>
+                    <button className="btn" onClick={() => clearSignature()}>clear signature</button>
+                    <button className="btn" onClick={()=> submitSignature()}>add signature</button>
+                </div>             
+            </div>}
+
             <h4>Create Loan Agreement</h4>
             <div>{userInfo.name}</div>
             <br></br>
             <span>
-            <button className="btn btn-success" onClick={() => setLoanType("borrow")}>Borrow Money</button>
-            <button className="btn btn-success" onClick={() => setLoanType("lend")}>Lend Money</button>
+            <button className={`${borrowBtnClicked ? "loanTypeBtnClicked " : "" } btn btn-outline-success borrowBtn`}  onClick={() => loanTypeSelected("borrow")}>Borrow Money</button>
+            <button className={`${lendBtnClicked ? "loanTypeBtnClicked " : "" } btn btn-outline-success lendBtn` } onClick={() => loanTypeSelected("lend")}>Lend Money</button>
             </span>
             <br></br>
             {typeOfLoan.length > 0 && <div>
