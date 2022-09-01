@@ -13,7 +13,7 @@ function App() {
       <Routes>
         <Route path="/" element={<Login />} />
         <Route path="user-info/:userId" element={<UserInfo />} />
-        <Route path="loan-agreement/:loanId" element={<LoanAgreement />} />
+        <Route path="loan-agreement/:loanId/:userId" element={<LoanAgreement />} />
         <Route path="loan-agreement-create/:userId" element={<LoanAgreementCreate />} />
       </Routes>
     </div>

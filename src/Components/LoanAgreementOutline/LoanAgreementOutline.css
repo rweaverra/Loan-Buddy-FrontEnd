@@ -1,7 +1,9 @@
 .loanAgreementOutline {
-   
+   width: 75%;
+   margin: auto;
+  margin-bottom: 15px;
 }
 
 .loanAgreementOutline:hover {
-    border: 1px solid #d0d0d0;
+    border: 5px solid #d0d0d0;
   }

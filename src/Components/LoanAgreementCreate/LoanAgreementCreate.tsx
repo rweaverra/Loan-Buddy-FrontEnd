@@ -3,9 +3,10 @@
 import React, {useState, useEffect, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import getAllUserData from '../../Utils/AjaxRequests';
+import SignatureAndPDF from '../SignatureAndPDF/SignatureAndPDF';
 import { IUserInfo, ILoanAgreement} from '../../Utils/Utils';
 import './LoanAgreementCreate.css';
-import SignaturePad from 'signature_pad';
+
 import { degrees, PDFDocument, rgb, StandardFonts } from 'pdf-lib';
 
  type TypeOfLoan = "borrow" | "lend" | "";
@@ -15,18 +16,37 @@ function LoanAgreementCreate() {
   const [typeOfLoan, setTypeOfLoan] = useState<TypeOfLoan>("");
   const [loanDetails, setLoanDetails] = useState<ILoanAgreement>({});
   const [otherPartyInfo, setOtherPartyInfo] = useState<IUserInfo>({}); 
-  const [pdfUrl, setPdfUrl] = useState<string>("");
-  const [showSignPad, setShowSignPad] = useState<boolean>(false);
-  const [showSaveAndEmailButton, setShowSaveAndEmailButton] = useState<boolean>(false);
+  const [pdfUrl, setPdfUrl] = useState<string>(""); //stays
+  const [showSigComponent, setShowSigComponent] = useState<boolean>(false);
+
   const [borrowBtnClicked, setBorrowBtnClicked] = useState<boolean>(false);
   const [lendBtnClicked, setLendBtnClicked] = useState<boolean>(false);
-  const [showSignAgreementBtn, setShowSignAgreementBtn] = useState<boolean>(true);
 
-
-  const canvasRef = useRef<any>(null);
+  const sigProps = { 
+    pdfUrl: pdfUrl,
+    otherParty: false,
+    setThePdfUrl: setThePdfUrl,
+    loanIsSigned: loanIsSigned,
+    saveAndEmailAgreement: saveAndEmailAgreement
+  }
+  
 
   const params = useParams();
   const userId = params.userId || "";  //as string
+
+  function loanIsSigned() {
+    let signedBy = typeOfLoan === "borrow" ?  "SignedByBorrower" : "SignedByLender";
+ 
+    setLoanDetails({
+        ...loanDetails,
+        [signedBy]: true,
+        requiresSignatures: true
+    })
+  }
+
+  function setThePdfUrl(pdfUrl: string) {
+    setPdfUrl(pdfUrl);
+  }
   
   async function getdata() {
     var results = await getAllUserData(userId); 
@@ -60,19 +80,20 @@ function LoanAgreementCreate() {
     buildPDF();
   }
 
+  //I think PDF Creation stays on LoanAgreementCreate then pass it down.
   function buildPDF() {
     const doc = new window.jsPDF();
     doc.fromHTML(document.getElementById("pdf"));
-
+    
+    //I could possible change this to a base64string?
     var pdf = doc.output('bloburl');
+    console.log("pdf Bloburl", pdf);
     setPdfUrl(pdf);
+    setShowSigComponent(true);
+
   }
 
-  function signAgreement() {
-      setShowSignPad(true);
-     
-  }
-  
+
   useEffect(() => {
     getdata(); 
     }, []); 
@@ -99,106 +120,35 @@ function LoanAgreementCreate() {
         body: requestString
     });
     const result = await response.json();
-    console.log("SubmitNewLoanAgreementResult: ", result);
+    console.log("Loan Agreement Submitted: ", result);
+    //take back to loan Agreement
+    const loanId = result.data.loanAgreementId as string;
+
+    
+    window.location.href = `../loan-agreement/${loanId}/${userId}`;
+    
+
   }
 
-   var sig : any = {};
-  var signatureUrl = '';
-       ///SIGNATURE PAD
-    if(canvasRef.current){
-        //my ref is basically document.getElementById, but has to be done after element is rendered.
-         sig = new SignaturePad(canvasRef.current);   
-        canvasRef.current.width = 500;
-        canvasRef.current.height = 200;
+  
 
-        sig.clear();
-
-        console.log("canvasRef: ", canvasRef);
-        console.log("sigPad: ", sig);
-    }
-    
-   
-
-
-    // function resizeCanvas() {
-    //     if(canvasRef.current) {
-    //         const ratio =  Math.max(window.devicePixelRatio || 1, 1);
-    //         canvasRef.current.width = canvasRef.current.offsetWidth * ratio;
-    //         canvasRef.current.height = canvasRef.current.offsetHeight * ratio;
-    //         canvasRef.current.getContext("2d").scale(ratio, ratio);
-
-    //     // if(sig && sig.clear) sig.clear();
-    //         //sig.clear(); // otherwise isEmpty() might return incorrect value
-    //     }
-    // }
-    
-    // window.addEventListener("resize", resizeCanvas);
-    // resizeCanvas();
-
-    
-
-    function clearSignature() {
-        sig.clear();
-    }
-
-    function submitSignature() {
-        signatureUrl = sig.toDataURL();
-        sig.clear();
-        addSignatureToPdf();
-        setShowSignAgreementBtn(false);
-    }
-
-    async function addSignatureToPdf() {
-
-        // Fetch existing PDF document
-        const url = pdfUrl;
-        const existingPdfBytes = await fetch(url).then(res => res.arrayBuffer());
-        
-        // Load a PDFDocument from the existing PDF bytes
-        const pdfDoc = await PDFDocument.load(existingPdfBytes);
-            
-        // Get the first page of the document
-        const pages = pdfDoc.getPages();
-        const firstPage = pages[0];
-        
-        // Fetch signature image url
-        const pngUrl = signatureUrl;
-        const pngImageBytes = await fetch(pngUrl).then((res) => res.arrayBuffer());
-            
-        const pngImage = await pdfDoc.embedPng(pngImageBytes);
-        const pngDims = pngImage.scale(0.25);
-            
-        firstPage.drawImage(pngImage, {
-            x: 100,
-            y: firstPage.getHeight() - 200,
-            width: pngDims.width,
-            height: pngDims.height,
-        });
-        
-        
-        // Serialize the PDFDocument to base64 string      
-        const pdfDataUri = await pdfDoc.saveAsBase64({ dataUri: true });
-            setPdfUrl(pdfDataUri);
-            setShowSaveAndEmailButton(true);
-
-        let signedBy = typeOfLoan === "borrow" ?  "SignedByBorrower" : "SignedByLender";
-
-        setLoanDetails({
-            ...loanDetails,
-            [signedBy]: true,
-            requiresSignatures: true
-        })
-  }
-
-  function loanTypeSelected(loanType : string){
+  function loanTypeSelected(loanType : TypeOfLoan){
     //set loan type
     if (loanType == "borrow"){
         setLoanType("borrow");
+        setLoanDetails({
+            ...loanDetails,
+            loanCreator: "borrower",
+        })
         setBorrowBtnClicked(true);
         setLendBtnClicked(false);
       
     } else if (loanType == "lend") {
         setLoanType("lend");
+        setLoanDetails({
+            ...loanDetails,
+            loanCreator: "lender",
+        })
         setLendBtnClicked(true);
         setBorrowBtnClicked(false);
     }
@@ -212,28 +162,8 @@ function LoanAgreementCreate() {
 
     return (
         <div className="container mainBody">
-            {pdfUrl && <div className='container'>
-                 <iframe src={pdfUrl} />
-                 <div className='row justify-content-center'>
-                   <button className="btn btn-primary" 
-                    style={{width: "45%", display: showSignAgreementBtn ? "inline-block" : "none"}} 
-                   onClick={signAgreement}>Sign Agreement</button>
-                 </div>
-
-                 
-                 { showSaveAndEmailButton &&<button className="btn btn-success" onClick={saveAndEmailAgreement}>Save and Email agreement to other party</button>}
-            </div>}
-            {showSignPad && <div className="signature-pad">
-                <div className="signature-pad-body row justify-content-center">
-                  <canvas ref={canvasRef}></canvas>
-                </div>
-                <div className="signature-pad-footer">
-                    <div>sign Above</div>
-                    <button className="btn" onClick={() => clearSignature()}>clear signature</button>
-                    <button className="btn" onClick={()=> submitSignature()}>add signature</button>
-                </div>             
-            </div>}
-
+            
+             {showSigComponent &&<SignatureAndPDF {...sigProps}/>}
             <h4>Create Loan Agreement</h4>
             <div>{userInfo.name}</div>
             <br></br>
@@ -285,6 +215,7 @@ function LoanAgreementCreate() {
                 <button type="button" className="btn btn-primary" >Create Loan Agreement Without Signatures</button>
             </form>  
 
+         {/* HTML FORMAT FOR PDF, MAYBE MOVE TO ITS OWN HTML PAGE? */}
             <div id="pdf" style={{display:"none"}}>
                 <div>The lender {typeOfLoan === "lend" ? userInfo.name : otherPartyInfo.name}  <br></br>
                  agrees to lend the borrower {typeOfLoan === "lend" ? otherPartyInfo.name : userInfo.name} <br></br>

@@ -9,24 +9,36 @@ export interface ILoanAgreement  {
     loanAgreementId?: number ,    
     lenderId?: number,
     borrowerId?: number,
+    borrowerDetail?: IUserInfo,
+    lenderDetail?: IUserInfo,
     originalAmount?: number,
     dateCreated?: string,
     monthlyPaymentAmount?: number, 
     remainingTotal?: number,
     requiresSignatures?: boolean,
     interestPercentage? : number,
-    paybackDate?: string
+    paybackDate?: string,
+    signedByBorrower?: boolean,
+    signedByLender?: boolean,
+    loanCreator?: string
   }
 
   export interface ITransaction {
     transactionId?: number,
     loanAgreementId?: number,
     amount?: number,
-    transactionType?: string,  //change this to another interface
+    transactionType?: TransactionType,
+    thirdPartyApp?: ThirdPartyApp,  
     date?: Date,
     remainingTotal?: number,
-    proofOfPayment?: boolean
+    requiresProofOfPayment?: boolean
   }
+   
+  //probaby make another type for ThirdPartyApp
+  export type TransactionType = "Cash" | "Check" | "Other" | "ThirdPartyApp" | undefined;
+
+  export type ThirdPartyApp = "Venmo" | "Zelle" | "PayPal" | "Other" | undefined;
+
 
   export interface IUserInfo {
     userId?: number,

@@ -1,0 +1,9 @@
+.thead-dark {
+    color: #fff;
+    background-color: #343a40;
+    border-color: #454d55;
+}
+
+.table {
+    margin-top: 15px;
+}

@@ -68,7 +68,7 @@ function Login() {
                         <Form.Label>Password</Form.Label>
                         <Form.Control name="password" value={inputs.password} onChange={handleChange} type="password" placeholder="Password" />
                     </Form.Group>
-                    </Form>
+                  </Form>
                 </Modal.Body>
                 <Modal.Footer>
                     <Button variant="secondary" onClick={handleClose}>
