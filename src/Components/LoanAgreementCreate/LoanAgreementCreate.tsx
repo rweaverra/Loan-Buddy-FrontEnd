@@ -2,7 +2,8 @@
 
 import React, {useState, useEffect, useRef } from 'react';
 import { useParams } from 'react-router-dom';
-import getAllUserData from '../../Utils/AjaxRequests';
+// import getAllUserData from '../../Utils/AjaxRequests'; old requets
+import fetchData from '../../Utils/AjaxRequests';
 import SignatureAndPDF from '../SignatureAndPDF/SignatureAndPDF';
 import { IUserInfo, ILoanAgreement} from '../../Utils/Utils';
 import './LoanAgreementCreate.css';
@@ -49,9 +50,13 @@ function LoanAgreementCreate() {
   }
   
   async function getdata() {
-    var results = await getAllUserData(userId); 
-    setUserInfo(results.userInfo);
+    await fetchData("GET", `https://localhost:7055/LoanAgreementsGet/${userId}`)
+    .then(data => {
+      setUserInfo(data.data.userInfo);
+    })
   }
+
+
 
   const handleChangeLoanDetails = (e: React.ChangeEvent<HTMLInputElement>) => {
    

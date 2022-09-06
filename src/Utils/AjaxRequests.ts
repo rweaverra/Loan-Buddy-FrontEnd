@@ -1,21 +1,29 @@
+export default async function fetchData(method : string, url : string, body? : any) {
+    const response = await fetch(`${url}`, {
+      method: method,
+      headers:{
+        'Content-Type': 'application/json',
+        Authorization: getAuth()
+      },
+      body: JSON.stringify(body)
+    });
 
-export default  async function getAllUserData(userId : string | undefined) {
-    try {
-      const response = await fetch(`https://localhost:7055/LoanAgreementsGet/${userId}`, {
-        method: 'GET',
-        headers: {
-          accept: 'application/json',
-        },
-      });
-  
-      if (!response.ok) {
-        throw new Error(`Error! status: ${response.status}`);
+    if (!response.ok) {
+      if(response.status == 401 || response.status == 403) {       
+      let url = window.location.origin;
+        window.location.href = `${url}`;
       }
-  
-      const result = await response.json();
-      return result.data;
-      //now that I have service response I need to update this because it wont be sending errors
-    } catch (err) {
-      console.log(err);
+      throw new Error(`Error! status: ${response.status}`);
+    }
+
+    const result = await response.json();    
+    return result;
+}
+
+  function getAuth() {
+    if(localStorage.token){
+      return `Bearer ${localStorage.token.toString()}`
+    } else {
+      return "";
     }
   }

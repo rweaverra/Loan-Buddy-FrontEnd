@@ -1,4 +1,5 @@
 import React, {useState} from 'react';
+import fetchData from '../../Utils/AjaxRequests';
 import Button from 'react-bootstrap/Button';
 import Modal from 'react-bootstrap/Modal';
 import Form from 'react-bootstrap/Form';
@@ -24,33 +25,13 @@ function Login() {
   }
 
   async function fetchUserId() {
-        try {
-          //create dev and production ENV variables for fetches
-          //will probably need a local and dev key
-          const response = await fetch(`https://localhost:7055/Auth?username=${inputs.login}&password=${inputs.password}`, {
-            method: 'GET',
-            headers: {
-              accept: 'application/json',
-            },
-          });
-      
-          if (!response.ok) {
-            throw new Error(`Error! status: ${response.status}`);
-          }
-      
-          const result = await response.json();
-          console.log("fetching result user id: ", result);
-
-          //if result is valid, ill have to fix this eventually.
-          let url = window.location.href;
-          window.location.href = `${url}user-info/${result}`
-          
-          //redirect to UserInfo Page.
-
-        } catch (err) {
-          console.log(err);
-        }
-      }
+    await fetchData("GET", `https://localhost:7055/Auth?username=${inputs.login}&password=${inputs.password}`)
+    .then(data => {
+      localStorage.setItem('token', data.token);
+      let url = window.location.href;
+      window.location.href = `${url}user-info/${data.user.userId.toString()}`
+    });
+  }
 
     return (
         <div>

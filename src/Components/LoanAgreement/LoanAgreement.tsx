@@ -2,14 +2,12 @@ import React, {useState, useEffect, useRef} from 'react';
 import ListGroup from 'react-bootstrap/ListGroup';
 import Card from 'react-bootstrap/Card';
 import { Link, useParams } from 'react-router-dom';
-import jsPDF from "jspdf";
 import MakePaymentModal from '../MakePaymentModal/MakePaymentModal';
 import SignatureAndPDF from '../SignatureAndPDF/SignatureAndPDF';
 import {ILoanAgreement, ITransaction, IUserInfo} from '../../Utils/Utils';
 import Table from '../Table/Table';
 import "./LoanAgreement.css";
-import { PDFDocument } from 'pdf-lib';
-import { reduceEachLeadingCommentRange } from 'typescript';
+import fetchData from '../../Utils/AjaxRequests';
 
 type TypeOfLoan = "borrow" | "lend" | "";
 
@@ -44,23 +42,10 @@ function LoanAgreement() {
   }
 
   async function getdata() {
-    try {
-      const response = await fetch(`https://localhost:7055/LoanAgreement/getAllLoanInfo/${params.loanId}`, {
-        method: 'GET',
-        headers: {
-          accept: 'application/json',
-        },
-      });
-  
-      if (!response.ok) {
-        throw new Error(`Error! status: ${response.status}`);
-      }
-      const result = await response.json();
-      initializeData(result);
-           
-    } catch (err) {
-      console.log(err);
-    }
+    await fetchData("GET", `https://localhost:7055/LoanAgreement/getAllLoanInfo/${params.loanId}`)
+    .then(data => {
+      initializeData(data);
+    });   
   }
 
   useEffect(() => {
@@ -142,52 +127,32 @@ async function submitFinishedLoanAgreement() {
           pdfBase64String: pdfString,
           typeOfLoan: typeOfLoan  
   } 
-
-  const requestString = JSON.stringify(requestBody);
-
-  const response = await fetch(`https://localhost:7055/LoanAgreement/SubmitSecondSigLoanAgreement`, {
-      method: 'POST',
-      headers: {
-      'Content-Type': 'application/json;charset=utf-8'
-  },
-      body: requestString
-  });
-  const result = await response.json();
-  console.log("SubmitNewLoanAgreementResult: ", result);
+ 
+  await fetchData("POST", `https://localhost:7055/LoanAgreement/SubmitSecondSigLoanAgreement`, requestBody)
+  .then(data => {
+    console.log("SubmitNewLoanAgreementResult: ", data);
+   })
 }
 
 async function submitTransaction(transaction: ITransaction) {
-
   transaction.loanAgreementId = loanAgreementDetails.loanAgreementId;
+  await fetchData("POST", `https://localhost:7055/Transaction/PostTransaction`, transaction)
+    .then(data => {
 
-
-  const requestString = JSON.stringify(transaction);
-
-  const response = await fetch(`https://localhost:7055/Transaction/PostTransaction`, {
-    method: 'POST',
-    headers: {
-    'Content-Type': 'application/json;charset=utf-8'
-     },
-    body: requestString
-  });
-
-  const result = await response.json();
-  console.log("Submittedtransaction: ", result);
-  handleClose();
-  transactions.push(result.data);
- 
-  //function to update remaining total
-  let remainingTotal = loanAgreementDetails.remainingTotal;
-  if(loanAgreementDetails.remainingTotal && transaction.amount){
-    remainingTotal = loanAgreementDetails.remainingTotal - transaction.amount;
-  }
-
-  setLoanAgreementDetails({
-    ...loanAgreementDetails,
-    remainingTotal: remainingTotal
-})
-
-  //update the transaction table.
+      handleClose();
+      transactions.push(data.data);  
+      
+      let remainingTotal = loanAgreementDetails.remainingTotal;
+      if(loanAgreementDetails.remainingTotal && transaction.amount){
+        remainingTotal = loanAgreementDetails.remainingTotal - transaction.amount;
+      }
+    
+      setLoanAgreementDetails({
+        ...loanAgreementDetails,
+        remainingTotal: remainingTotal
+      })
+    });   
+  
 }
   
 

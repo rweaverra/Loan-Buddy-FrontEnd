@@ -2,7 +2,7 @@ import React, {useState, useEffect} from 'react';
 import { Link, useParams } from 'react-router-dom';
 import LoanAgreementOutline from '../LoanAgreementOutline/LoanAgreementOutline';
 import {ILoanAgreement, IUserInfo} from '../../Utils/Utils';
-import getAllUserData from '../../Utils/AjaxRequests';
+import fetchData from '../../Utils/AjaxRequests';
 
 function UserInfo() {
   const [userData, setUserData] = useState<IUserInfo>({});
@@ -14,14 +14,13 @@ function UserInfo() {
   const userId = params.userId as string;
 
   async function getdata() {
-    //could make get AllUserData a request OBject so We Know what it is doing.
-    var results = await getAllUserData(userId);
-
-    setUserData(results.userInfo);
-    setLoanAgreements(results.loanAgreements);
+    await fetchData("GET", `https://localhost:7055/LoanAgreementsGet/${userId}`)
+    .then(data => {
+      setUserData(data.data.userInfo);
+    setLoanAgreements(data.data.loanAgreements);
+    });
   }
 
-  
   useEffect(() => {
       getdata();      
   }, []); 
