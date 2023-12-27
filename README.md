@@ -1,3 +1,18 @@
+
+
+1) open and run loan-buddy-backend in Visual Studio
+2) open loan-buddy-frontend in Visual Studio Code
+3) in loan-buddy-frontend directory fun 'npm start' in terminal
+4) to access database - visual studio - open 'SQL Server Object Explorer'
+      a) db location:   SqlServer\(localdb)\MSSQLLocalDB\Databases\LoanBuddyDB
+
+5) Test user:
+login: rweaverra@gmail.com
+password: 123
+
+
+
+
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).

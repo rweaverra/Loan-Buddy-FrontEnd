@@ -115,24 +115,12 @@ function LoanAgreementCreate() {
             typeOfLoan: typeOfLoan  
     } 
 
-    const requestString = JSON.stringify(requestBody);
 
-    const response = await fetch(`https://localhost:7055/LoanAgreement/SubmitNewLoanAgreement`, {
-        method: 'POST',
-        headers: {
-        'Content-Type': 'application/json;charset=utf-8'
-    },
-        body: requestString
-    });
-    const result = await response.json();
-    console.log("Loan Agreement Submitted: ", result);
-    //take back to loan Agreement
-    const loanId = result.data.loanAgreementId as string;
-
-    
-    window.location.href = `../loan-agreement/${loanId}/${userId}`;
-    
-
+    await fetchData("POST", `https://localhost:7055/LoanAgreement/SubmitNewLoanAgreement`, requestBody)
+    .then(data => {
+      const loanId = data.data.loanAgreementId as string;
+      window.location.href = `../loan-agreement/${loanId}/${userId}`;
+    })
   }
 
   
