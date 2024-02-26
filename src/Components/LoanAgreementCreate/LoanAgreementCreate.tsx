@@ -3,7 +3,7 @@
 import React, {useState, useEffect, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 // import getAllUserData from '../../Utils/AjaxRequests'; old requets
-import fetchData from '../../Utils/AjaxRequests';
+import { fetchData } from '../../Utils/AjaxRequests';
 import SignatureAndPDF from '../SignatureAndPDF/SignatureAndPDF';
 import { IUserInfo, ILoanAgreement} from '../../Utils/Utils';
 import './LoanAgreementCreate.css';

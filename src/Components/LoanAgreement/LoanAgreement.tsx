@@ -7,7 +7,7 @@ import SignatureAndPDF from '../SignatureAndPDF/SignatureAndPDF';
 import {ILoanAgreement, ITransaction, IUserInfo} from '../../Utils/Utils';
 import Table from '../Table/Table';
 import "./LoanAgreement.css";
-import fetchData from '../../Utils/AjaxRequests';
+import { fetchData, postFile } from '../../Utils/AjaxRequests';
 
 type TypeOfLoan = "borrow" | "lend" | "";
 
@@ -19,6 +19,7 @@ function LoanAgreement() {
   const [loanAgreementDetails, setLoanAgreementDetails] = useState<ILoanAgreement>({});
   const [transactions, setTransactions] = useState<ITransaction[]>([]);
   const [showSigComponent, setShowSigComponent] = useState<boolean>(false);
+  const [showFileUpload, setShowFileComponent] = useState<boolean>(false);
   const [needsSignature, setNeedsSignature] = useState<boolean>(true);
   const [pdfUrl, setPdfUrl] = useState<string>("");
   const [secondPartyNeedsSig, setSecondPartyNeedsSig] = useState<boolean>(false);
@@ -26,6 +27,7 @@ function LoanAgreement() {
   
   const [showModal, setShowModal] = useState<boolean>(false);
   const handleShow = () => setShowModal(true);
+  const handleInputShow = () => setShowFileComponent(current => !current); 
   const handleClose = () => setShowModal(false);
 
   let params = useParams();
@@ -117,6 +119,39 @@ function saveAndEmailAgreement() {
  setNeedsSignature(false);            
 }
 
+ async function PostCSVTransactions(formData: FormData) {
+  await postFile("POST", `https://localhost:7055/LoanAgreement/SubmitPreviousTransactionsCSV?loanId=${loanId}`, formData)
+  .then(data => {
+    console.log("SubmittedCSV to the Backend!!!: ", data);
+   })
+}
+
+async function handleFileUpload (event: React.ChangeEvent<HTMLInputElement>) {
+  const fileList = event.target.files;
+ 
+  if (!fileList) return;
+
+  const file = fileList[0];
+  
+  if (file) {
+    // Validate if the uploaded file is a csv spreadsheet
+    if (file.type === 'text/csv') {
+      // Handle case where the uploaded file is not an Excel spreadsheet
+      console.log('uploading file.', file);
+      
+
+      const formData = new FormData();
+      formData.append("username", "abc123");
+    formData.append('file', file);
+
+    await PostCSVTransactions(formData);
+    //rebuild with all the new transactions.
+    
+    }
+  }
+  
+}
+
 async function submitFinishedLoanAgreement() {   
   //remove extra data from PDF base64 string
   let pdfString = pdfUrl.substring(28);
@@ -167,6 +202,11 @@ if(!loanAgreementDetails.loanAgreementId) return <div>loading...</div>
         <button className="btn btn-success" >Home</button>
         </Link>
         <button className="btn btn-primary"onClick={handleShow}>Make Payment</button>
+        <button className="btn btn-secondary"onClick={handleInputShow}>Upload multiple transactions with csv</button>
+
+
+       { showFileUpload && <input id="csvFiles" type="file" accept=".csv"  onChange={handleFileUpload}  /> }
+
         { secondPartyNeedsSig && <h5 style={{color: "red"}}> requires other party's signature </h5>}
         {showSigComponent &&<SignatureAndPDF {...sigProps}/>}
         {needsSignature && <button className="btn btn-primary" onClick={openSigAndPdf}>view and sign Loan Agreement</button>}

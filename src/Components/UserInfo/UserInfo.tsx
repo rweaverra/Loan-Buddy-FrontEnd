@@ -2,7 +2,7 @@ import React, {useState, useEffect} from 'react';
 import { Link, useParams } from 'react-router-dom';
 import LoanAgreementOutline from '../LoanAgreementOutline/LoanAgreementOutline';
 import {ILoanAgreement, IUserInfo} from '../../Utils/Utils';
-import fetchData from '../../Utils/AjaxRequests';
+import { fetchData } from '../../Utils/AjaxRequests';
 
 function UserInfo() {
   const [userData, setUserData] = useState<IUserInfo>({});
