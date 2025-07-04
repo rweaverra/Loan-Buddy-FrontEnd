@@ -1,13 +1,15 @@
 
 
-1) open and run loan-buddy-backend in Visual Studio
+1) open and run loan-buddy-backend in Visual Studio 
+      - if new need to run migration scripts to build out database schema
+      
 2) open loan-buddy-frontend in Visual Studio Code
 3) in loan-buddy-frontend directory fun 'npm start' in terminal
 4) to access database - visual studio - open 'SQL Server Object Explorer'
       a) db location:   SqlServer\(localdb)\MSSQLLocalDB\Databases\LoanBuddyDB
 
 5) Test user:
-login: rweaverra@gmail.com
+login: Janet@gmail.com
 password: 123
 
 
