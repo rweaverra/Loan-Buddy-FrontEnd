@@ -222,7 +222,7 @@ if(!loanAgreementDetails.loanAgreementId) return <div>loading...</div>
           </ListGroup>
         </Card>
         <MakePaymentModal submitTransaction={submitTransaction} showModal={showModal} handleClose={handleClose}/>
-        <Table headers={headers} transactions={transactions}/>
+        <Table transactions={transactions} />
       </div>
     );
   }
